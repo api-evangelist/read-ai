@@ -1,0 +1,111 @@
+generated: '2026-08-05'
+method: searched
+source: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+description: >-
+  Cross-cutting request/response semantics for the Read AI REST API v1, read from the
+  provider's own API Reference, auth guide and webhook guide. Read AI has no OpenAPI,
+  so every convention below is captured from prose + published examples.
+authentication:
+  style: OAuth 2.1 bearer token in the Authorization header
+  header: 'Authorization: Bearer <access_token>'
+  detail: authentication/read-ai-authentication.yml
+  static_keys: false
+base_url: https://api.read.ai/
+versioning:
+  scheme: uri-path
+  current: v1
+  maturity: open beta
+  detail: lifecycle/read-ai-lifecycle.yml
+idempotency:
+  supported: false
+  note: >-
+    Read AI documents no idempotency key, no request-replay contract and no unsafe
+    methods on the public API — every documented v1 endpoint is a GET, so idempotency
+    is a property of the verb rather than a published contract. The one replay-safety
+    mechanism Read AI does ship is on the OUTBOUND side: every webhook delivery
+    carries a unique request_id the receiver can use to discard duplicates. No
+    Idempotency pointer is emitted for this provider.
+  outbound_replay_protection:
+    field: request_id
+    where: webhook payload body
+    purpose: detect and ignore duplicate deliveries, preventing replay attacks
+pagination:
+  style: cursor
+  parameters:
+    - name: limit
+      description: Maximum objects returned. Default 10, max 10.
+    - name: cursor
+      description: >-
+        ID of the last object in the previous page's data array. Set it to continue
+        after that object.
+  response_fields:
+    - {name: object, type: string, description: 'Typically "list".'}
+    - {name: url, type: string, description: URL of the request.}
+    - {name: has_more, type: boolean, description: Whether additional pages exist.}
+    - {name: data, type: array, description: The page of meeting objects.}
+  ordering: reverse chronological (newest first)
+  note: >-
+    The MCP tool list_meetings inherits the same 10-item cap and cursor contract.
+field_expansion:
+  parameter: 'expand[]'
+  style: repeated query parameter, e.g. ?expand[]=summary&expand[]=metrics
+  fields:
+    - summary
+    - chapter_summaries
+    - action_items
+    - key_questions
+    - topics
+    - transcript
+    - metrics
+    - recording_download
+  live_meeting_fields: [transcript, chapter_summaries]
+  cost_note: >-
+    Read AI warns that expansion increases response time, and that expanding multiple
+    fields on a list request can be noticeably slower.
+filtering:
+  style: dotted comparison operators on a field name
+  parameters:
+    - 'start_time_ms.gt'
+    - 'start_time_ms.gte'
+    - 'start_time_ms.lt'
+    - 'start_time_ms.lte'
+  time_format: Unix epoch milliseconds (integer)
+identifiers:
+  meeting_id: ULID
+  example_shape: 26-character Crockford base32 ULID
+  transcript_timestamps: Unix epoch milliseconds
+  webhook_times: ISO 8601 UTC (RFC 3339)
+error_envelope:
+  format: plain HTTP status codes with a JSON body
+  observed_body: '{"detail": "<message>"}'
+  observed_from: >-
+    Anonymous probes of https://api.read.ai/v1/meetings (401) and unknown paths (404)
+    on 2026-08-05; the shape is FastAPI's default detail envelope.
+  problem_json: false
+  detail: errors/read-ai-problem-types.yml
+rate_limiting:
+  limit: 100 requests per minute per user
+  exceeded_status: 429
+  headers_documented: false
+  detail: rate-limits/read-ai-rate-limits.yml
+request_tracing:
+  inbound_request_id_header: null
+  note: >-
+    No inbound request-id/correlation header is documented. Outbound webhooks carry a
+    request_id in the body.
+webhooks:
+  signature_header: X-Read-Signature
+  algorithm: HMAC-SHA256 over the raw request body, key base64-decoded
+  detail: asyncapi/read-ai-webhooks.yml
+content_type:
+  request: application/json
+  response: application/json
+  accept_header_used_in_docs: application/json
+cross_links:
+  authentication: authentication/read-ai-authentication.yml
+  scopes: scopes/read-ai-scopes.yml
+  errors: errors/read-ai-problem-types.yml
+  lifecycle: lifecycle/read-ai-lifecycle.yml
+  rate_limits: rate-limits/read-ai-rate-limits.yml
+  webhooks: asyncapi/read-ai-webhooks.yml
+  data_model: data-model/read-ai-data-model.yml

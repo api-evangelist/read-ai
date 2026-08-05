@@ -1,0 +1,150 @@
+generated: '2026-08-05'
+method: searched
+source: >-
+  well-known/read-ai-openid-configuration.json,
+  well-known/read-ai-oauth-protected-resource-mcp.json,
+  https://support.read.ai/hc/en-us/articles/25702259763091-Security-Privacy-Overview
+description: >-
+  Cross-cutting standards Read AI conforms to, asserted only where a fetched document
+  or a provider statement is the evidence. Read AI is unusually strong on the
+  identity/agent standards stack and absent on the API-description stack.
+standards:
+  - id: oauth2
+    conforms: true
+    evidence: >-
+      OAuth 2.1 authorization server at https://authn.read.ai/ with authorization,
+      token, revocation and device-authorization endpoints.
+  - id: oauth2-pkce
+    conforms: true
+    evidence: 'code_challenge_methods_supported: ["plain","S256"] in authorization-server metadata.'
+  - id: rfc8414-authorization-server-metadata
+    conforms: true
+    evidence: 'https://authn.read.ai/.well-known/oauth-authorization-server returns 200 JSON.'
+  - id: rfc9728-protected-resource-metadata
+    conforms: true
+    evidence: >-
+      https://api.read.ai/.well-known/oauth-protected-resource/mcp returns 200 with
+      resource, authorization_servers, jwks_uri, scopes_supported and
+      bearer_methods_supported; the MCP 401 challenge advertises it via
+      WWW-Authenticate resource_metadata.
+  - id: rfc7591-dynamic-client-registration
+    conforms: true
+    evidence: >-
+      POST https://api.read.ai/oauth/register accepts a client-registration document
+      and returns 400 invalid_client_metadata on an empty body; documented as the
+      required first step in the auth guide.
+  - id: oidc-discovery
+    conforms: true
+    evidence: >-
+      https://authn.read.ai/.well-known/openid-configuration returns 200 with issuer,
+      userinfo_endpoint, jwks_uri and RS256 id_token signing.
+  - id: rfc7517-jwks
+    conforms: true
+    evidence: 'https://authn.read.ai/.well-known/jwks.json returns 200 with two RS256 keys.'
+  - id: model-context-protocol
+    conforms: true
+    evidence: >-
+      Hosted remote MCP server at https://api.read.ai/mcp over Streamable HTTP,
+      OAuth-protected; listed in the Anthropic connector directory.
+  - id: agent-skills
+    conforms: true
+    evidence: >-
+      Three provider-authored Agent Skill bundles published at
+      readai-assets-production.s3.us-east-1.amazonaws.com/readai_skills/ with
+      SKILL.md frontmatter; saved to skills/.
+  - id: ocsf-1.7.0
+    conforms: true
+    evidence: >-
+      Workspace audit logs follow Open Cybersecurity Schema Framework 1.7.0 —
+      documented class_uid/activity_id event list mapped to OCSF classes 3001, 3002,
+      3005, 3006, 6001, 6002.
+  - id: saml2
+    conforms: true
+    evidence: >-
+      SAML SSO documented with Okta, Microsoft Entra and Duo setup guides;
+      Enterprise+ plan feature.
+  - id: scim2
+    conforms: true
+    evidence: SCIM listed as an Enterprise+ plan capability alongside SAML.
+  - id: rfc9116-security-txt
+    conforms: false
+    evidence: >-
+      /.well-known/security.txt returns 404 on www.read.ai, api.read.ai and
+      authn.read.ai.
+  - id: openapi
+    conforms: false
+    evidence: >-
+      No OpenAPI or Swagger document published. api.read.ai/openapi.json, /docs and
+      /redoc are 301-redirected to the marketing site; /openapi.yaml, /swagger.json,
+      /v1/openapi.json, /api-docs return {"detail":"Not Found"}.
+  - id: asyncapi
+    conforms: false
+    evidence: >-
+      Webhooks are documented in prose only; no AsyncAPI document exists. See
+      asyncapi/read-ai-webhooks.yml.
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: >-
+      Errors are plain HTTP status codes with a FastAPI {"detail": "..."} body; no
+      application/problem+json.
+  - id: rfc8594-sunset-header
+    conforms: false
+    evidence: No deprecation policy or Sunset/Deprecation header support documented.
+  - id: graphql
+    conforms: false
+    evidence: No /graphql surface documented or discovered.
+  - id: a2a
+    conforms: false
+    evidence: >-
+      /.well-known/agent-card.json and /.well-known/agent.json return 404 on
+      api.read.ai and www.read.ai; app.read.ai answers 200 with the SPA HTML shell on
+      every /.well-known path (rejected).
+compliance:
+  description: >-
+    Certification and privacy-program claims made by Read AI on its own pages.
+    Artifacts are gated behind the Trust Center request flow — the certificate files
+    themselves were not fetched.
+  programs:
+    - name: SOC 2 Type 2
+      claimed: true
+      evidence: >-
+        "Please visit Read's Trust Center for a copy of Read's SOC2 Type 2 report,
+        Data Processing Agreement, or other forms." — Security & Privacy Overview.
+      artifact_access: request via https://trust.read.ai/
+    - name: EU-U.S. Data Privacy Framework
+      claimed: true
+      evidence: >-
+        "Read is a participant of the Data Privacy Framework program, which can be
+        confirmed by searching for 'Read AI' here: https://www.dataprivacyframework.gov/list"
+      verify: https://www.dataprivacyframework.gov/list
+    - name: GDPR
+      claimed: true
+      evidence: Dedicated GDPR section in the Security & Privacy Overview; DPA published at https://www.read.ai/data-processing-addendum
+    - name: HIPAA / BAA
+      claimed: true
+      evidence: >-
+        HIPAA compliance is listed as an Enterprise+ plan feature on
+        https://www.read.ai/plans-pricing; HIPAA/BAA section in the Security & Privacy
+        Overview.
+  penetration_testing:
+    claimed: true
+    evidence: '"regular SOC 2 audits and penetration tests" — Security & Privacy Overview.'
+  encryption:
+    in_transit: true
+    at_rest: true
+    data_residency: AWS us-east-1 (Northern Virginia, USA)
+    evidence: Security & Privacy Overview.
+  model_training:
+    customer_data_used_for_training: false
+    evidence: >-
+      "Does Read use customer data to train AI model?" section of the Security &
+      Privacy Overview; llms.txt states private meeting data "may not be used for
+      training, retrieval, or inference by external models."
+x-evidence:
+  fetched: '2026-08-05'
+  probes:
+    - {url: 'https://authn.read.ai/.well-known/openid-configuration', http_status: 200}
+    - {url: 'https://api.read.ai/.well-known/oauth-protected-resource/mcp', http_status: 200}
+    - {url: 'https://api.read.ai/oauth/register', http_status: 400, method: POST}
+    - {url: 'https://trust.read.ai/', http_status: 200}
+    - {url: 'https://www.read.ai/.well-known/security.txt', http_status: 404}

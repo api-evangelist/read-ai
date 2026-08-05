@@ -1,0 +1,81 @@
+generated: '2026-08-05'
+method: derived
+source: >-
+  mcp/read-ai-mcp.yml +
+  https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+description: >-
+  Binds each Read AI MCP tool to the REST operation that backs it. Read AI publishes
+  NO OpenAPI (see x-coverage in apis.yml), so the REST side of this crosswalk is
+  identified by documented HTTP method + path from the provider's own API Reference
+  rather than by operationId, and each tool's real input contract is that endpoint's
+  documented query parameters. Both surfaces are OAuth-gated, so the binding is by
+  name and documented semantics — confidence is recorded honestly.
+surfaces:
+  openapi: null
+  openapi_note: >-
+    No OpenAPI/Swagger published. api.read.ai/openapi.json, /docs and /redoc are all
+    301-redirected by the AWS ALB to https://www.read.ai/; /openapi.yaml,
+    /swagger.json, /v1/openapi.json and /api-docs return the FastAPI 404 body
+    {"detail":"Not Found"}.
+  rest:
+    base_url: https://api.read.ai/
+    docs: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+    gated: true
+    gate: OAuth 2.1 bearer token (anonymous GET /v1/meetings -> 401 Not authenticated)
+  graphql: null
+  mcp:
+    url: https://api.read.ai/mcp
+    gated: true
+    gate: OAuth 2.1 (anonymous tools/list -> 401 invalid_token)
+crosswalk:
+  - tool: list_meetings
+    category: meetings
+    rest:
+      - GET /v1/meetings
+    binding: rest
+    confidence: high
+    note: >-
+      Same capability, same constraints on both surfaces — cursor pagination with
+      limit capped at 10 and a has_more flag, plus an expand[] projection. The MCP
+      tool exposes the time filter as start_datetime_gte / start_datetime_lte where
+      REST exposes start_time_ms.gte / start_time_ms.lte (epoch milliseconds).
+  - tool: get_meeting_by_id
+    category: meetings
+    rest:
+      - GET /v1/meetings/{id}
+    binding: rest
+    confidence: high
+    note: >-
+      Meeting ULID path parameter, same expand[] field set (summary,
+      chapter_summaries, action_items, key_questions, topics, transcript, metrics,
+      recording_download).
+mcp_only: []
+rest_only:
+  - rest: GET /v1/meetings/{id}/live
+    capability: live meeting data
+    reason: >-
+      Real-time transcript and chapter summaries for an in-progress, live-enabled
+      meeting. Read AI's published MCP tool list names only two tools and neither
+      covers the live surface.
+  - rest: POST /oauth/register
+    capability: OAuth 2.1 dynamic client registration (RFC 7591)
+    reason: Authorization plumbing, not a data operation; not exposed as a tool.
+  - rest: GET /oauth/test-token-with-scopes
+    capability: token/scope smoke test
+    reason: Diagnostic endpoint documented in the auth guide; not exposed as a tool.
+coverage:
+  tools_named: 2
+  tools_bound: 2
+  mcp_only: 0
+  rest_operations_documented: 5
+  rest_operations_with_a_tool: 2
+x-evidence:
+  fetched: '2026-08-05'
+  rest_probe:
+    url: https://api.read.ai/v1/meetings
+    http_status: 401
+    body: '{"detail":"Not authenticated"}'
+  mcp_probe:
+    url: https://api.read.ai/mcp
+    http_status: 401
+    body: invalid_token

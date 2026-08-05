@@ -1,0 +1,71 @@
+generated: '2026-08-05'
+method: searched
+source: https://api.read.ai/.well-known/oauth-protected-resource/mcp
+docs: https://support.read.ai/hc/en-us/articles/49380809380371-API-Keys-Authentication
+description: >-
+  Scopes advertised by Read AI's OAuth 2.1 authorization server (authn.read.ai) and
+  by the MCP resource server's RFC 9728 protected-resource metadata. Read AI does not
+  publish a standalone scope-reference page; the descriptions below are the standard
+  OIDC meanings plus the two Read-specific scopes named in the provider's
+  registration example.
+schemes:
+  - name: OAuth2
+    source: well-known/read-ai-oauth-authorization-server.json
+    flows:
+      - flow: authorizationCode
+        authorizationUrl: https://authn.read.ai/oauth2/auth
+        tokenUrl: https://authn.read.ai/oauth2/token
+scopes:
+  - scope: openid
+    description: OpenID Connect — request an ID token identifying the Read AI user.
+    flows: [authorizationCode]
+    sources: [well-known/read-ai-openid-configuration.json]
+  - scope: profile
+    description: Basic profile claims for the authenticated Read AI user.
+    flows: [authorizationCode]
+    sources: [well-known/read-ai-openid-configuration.json]
+  - scope: email
+    description: The user's primary email address claim.
+    flows: [authorizationCode]
+    sources: [well-known/read-ai-openid-configuration.json]
+  - scope: offline_access
+    description: >-
+      Issue a refresh token so the client can renew the 10-minute access token
+      without a new browser round trip.
+    flows: [authorizationCode]
+    sources: [well-known/read-ai-openid-configuration.json]
+  - scope: offline
+    description: Legacy alias for offline_access, advertised by the authorization server.
+    flows: [authorizationCode]
+    sources: [well-known/read-ai-oauth-authorization-server.json]
+  - scope: 'meeting:read'
+    description: >-
+      Read access to the authenticated user's meeting reports — metadata,
+      participants, summaries, chapter summaries, action items, key questions,
+      topics, transcripts, metrics and recording download URLs. Backs GET
+      /v1/meetings, GET /v1/meetings/{id} and GET /v1/meetings/{id}/live.
+    flows: [authorizationCode]
+    sources:
+      - well-known/read-ai-oauth-protected-resource-mcp.json
+      - https://support.read.ai/hc/en-us/articles/49380809380371-API-Keys-Authentication
+  - scope: 'mcp:execute'
+    description: >-
+      Permission to invoke tools on the Read AI MCP server at https://api.read.ai/mcp.
+    flows: [authorizationCode]
+    sources:
+      - well-known/read-ai-oauth-protected-resource-mcp.json
+      - https://support.read.ai/hc/en-us/articles/49380809380371-API-Keys-Authentication
+audience:
+  - https://api.read.ai/v1/meetings
+  - https://api.read.ai/mcp
+notes:
+  - >-
+    Read AI's own dynamic-client-registration example requests the full set:
+    "openid email offline_access profile meeting:read mcp:execute".
+  - >-
+    No write scopes are advertised. The public API surface is read-only over meeting
+    data; every documented endpoint is a GET.
+x-evidence:
+  fetched: '2026-08-05'
+  url: https://api.read.ai/.well-known/oauth-protected-resource/mcp
+  http_status: 200

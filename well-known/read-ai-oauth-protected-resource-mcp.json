@@ -1,0 +1,1 @@
+{"resource_name":"Read AI MCP Server","resource":"https://api.read.ai/mcp","authorization_servers":["https://authn.read.ai/"],"jwks_uri":"https://authn.read.ai/.well-known/jwks.json","scopes_supported":["openid","profile","email","offline_access","offline","mcp:execute","meeting:read"],"bearer_methods_supported":["header"]}

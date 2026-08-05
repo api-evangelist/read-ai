@@ -1,0 +1,68 @@
+generated: '2026-08-05'
+method: searched
+source: https://support.read.ai/hc/en-us/articles/49379985941523-Read-AI-API-and-MCP-Overview
+description: >-
+  Read AI's public API and MCP server are in open beta as of 2026-08. Versioning is
+  by URI path (v1). The provider publishes a Statuspage but no written deprecation or
+  sunset policy, and no SLA/uptime commitment on a public page.
+versioning:
+  scheme: uri-path
+  current: v1
+  base_url: https://api.read.ai/
+  maturity: open-beta
+  docs: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+deprecation:
+  policy_url: null
+  sunset_header: null
+  note: >-
+    No deprecation policy, RFC 8594 Sunset/Deprecation header support, or
+    breaking-change notice window is published. This is a real gap for an API in open
+    beta whose auth model is expected to change at GA — Read AI itself says static
+    API keys and additional endpoints are coming.
+sla:
+  url: null
+  uptime_target: null
+status_page:
+  url: https://status.read.ai/
+  provider: Atlassian Statuspage
+  api: https://status.read.ai/api/v2/summary.json
+  components_observed:
+    - {name: API, description: Backend APIs, status_at_probe: operational}
+    - {name: Meeting Platforms, status_at_probe: operational}
+  probed: '2026-08-05'
+changelog:
+  url: null
+  note: >-
+    No dated changelog, release-notes or What's New page was found at
+    /changelog, /whats-new, /release-notes (all 404 on www.read.ai). Product
+    announcements are published as dated blog posts at https://www.read.ai/blog and
+    help-center articles carry updated_at timestamps via the Zendesk API.
+roadmap:
+  url: null
+  published_plans_for_ga:
+    - Support for static API keys / personal access tokens
+    - More options for token lifetimes and a refresh-token grace period
+    - A setting to enable live transcription for all meetings
+    - Additional endpoints, tools, and webhook/event support
+    - Expanded documentation and a self-serve UI for easier onboarding
+  source: https://support.read.ai/hc/en-us/articles/49379985941523-Read-AI-API-and-MCP-Overview
+  note: >-
+    These are stated in a help article, not on a dedicated roadmap page; no Roadmap
+    pointer is emitted.
+known_limitations_at_beta:
+  - OAuth 2.1 flow requires browser login; no machine-to-machine credentials.
+  - Access tokens expire after 10 minutes; refresh tokens are single-use and rotate.
+  - 100 requests per minute per user.
+  - >-
+    Ask Read, Coaching and several web-app integration features are not exposed via
+    API or MCP; audio/video upload for transcription is not supported via API.
+  - Live transcript is off by default unless the live dashboard is opened.
+  - Reported interoperability issues with some MCP clients (VS Code, Notion).
+deprecated_operations: []
+x-evidence:
+  fetched: '2026-08-05'
+  probes:
+    - {url: 'https://status.read.ai/api/v2/summary.json', http_status: 200}
+    - {url: 'https://www.read.ai/changelog', http_status: 404}
+    - {url: 'https://www.read.ai/whats-new', http_status: 404}
+    - {url: 'https://www.read.ai/roadmap', http_status: 404}

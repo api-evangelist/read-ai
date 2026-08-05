@@ -1,0 +1,43 @@
+generated: '2026-08-05'
+method: searched
+source: registry search — npm, PyPI, GitHub
+description: >-
+  Read AI ships NO first-party client libraries. Every public package registry was
+  searched on 2026-08-05 and the only hit is a third-party CLI. Read AI's official
+  GitHub organization (Read-AI-Inc) exists and is verifiably theirs, but carries zero
+  public repositories. The provider's own integration path is the MCP server, the
+  webhook surface, and raw HTTPS calls with curl — the auth guide's examples are all
+  curl.
+packages: []
+third_party:
+  - language: javascript
+    registry: npm
+    name: '@hyperdrive.bot/read-ai'
+    url: https://www.npmjs.com/package/@hyperdrive.bot/read-ai
+    description: 'Read.ai API CLI — fetch meeting reports, transcripts, and summaries'
+    official: false
+    note: >-
+      Published under the @hyperdrive.bot scope, not by Read AI. Recorded for
+      discovery only; not endorsed and not an SDK signal for this provider.
+registries_searched:
+  - {registry: npm, query: 'read.ai', official_hits: 0}
+  - {registry: pypi, queries: [readai, read-ai, readai-sdk], official_hits: 0, status: 404}
+  - {registry: github, org: Read-AI-Inc, url: 'https://github.com/Read-AI-Inc', public_repos: 0}
+github_organization:
+  login: Read-AI-Inc
+  url: https://github.com/Read-AI-Inc
+  name: Read AI
+  blog: https://read.ai
+  location: United States of America
+  created_at: '2021-03-23T19:10:04Z'
+  public_repos: 0
+  verified_via: https://api.github.com/orgs/read-ai-inc
+distribution_the_provider_does_ship:
+  - {kind: agent-skill, count: 3, location: skills/, note: 'Downloadable .skill bundles for Claude.'}
+  - {kind: mcp-server, url: 'https://api.read.ai/mcp', note: Remote, no install.}
+  - {kind: end-user-apps, note: 'iOS, Android, macOS, Windows, Chrome/Edge extensions, Zoom/Teams/Meet apps — end-user clients, not developer SDKs.'}
+x-evidence:
+  fetched: '2026-08-05'
+  note: >-
+    Absence is the finding. No SDKs pointer is emitted in apis.yml because there is
+    no official client library to point at.

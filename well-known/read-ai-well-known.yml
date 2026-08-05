@@ -1,0 +1,74 @@
+generated: '2026-08-05'
+method: searched
+source: https://api.read.ai/.well-known/oauth-protected-resource/mcp
+description: >-
+  Well-known discovery surface probed across every Read AI host. The MCP resource
+  server (api.read.ai) publishes RFC 9728 protected-resource metadata; the identity
+  host (authn.read.ai) publishes full OIDC + RFC 8414 authorization-server metadata
+  and a JWKS. The marketing host serves an "Invalid .well-known request" 404 page for
+  every /.well-known/* path, and the SPA host app.read.ai answers 200 with the HTML
+  app shell for every /.well-known/* path (rejected as a catch-all false positive).
+hosts:
+  - host: https://api.read.ai
+    documents:
+      - path: /.well-known/oauth-protected-resource/mcp
+        status: 200
+        file: read-ai-oauth-protected-resource-mcp.json
+        standard: RFC 9728 OAuth 2.0 Protected Resource Metadata
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: https://authn.read.ai
+    documents:
+      - path: /.well-known/openid-configuration
+        status: 200
+        file: read-ai-openid-configuration.json
+        standard: OpenID Connect Discovery 1.0
+      - path: /.well-known/oauth-authorization-server
+        status: 200
+        file: read-ai-oauth-authorization-server.json
+        standard: RFC 8414 OAuth 2.0 Authorization Server Metadata
+      - path: /.well-known/jwks.json
+        status: 200
+        note: >-
+          Live JWKS with two RS256 signing keys. Not mirrored into this repo — key
+          material rotates and the live endpoint is the source of truth.
+  - host: https://www.read.ai
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+      - path: /llms.txt
+        status: 200
+        note: Saved verbatim to llms/read-ai-llms.txt
+  - host: https://app.read.ai
+    documents:
+      - path: /.well-known/agent-card.json
+        status: 200
+        accepted: false
+        reason: >-
+          Single-page-app catch-all — body is the React index.html shell
+          (content-type text/html), not JSON. Not an agent card.
+      - path: /.well-known/security.txt
+        status: 200
+        accepted: false
+        reason: Same SPA catch-all HTML shell.
+x-evidence:
+  fetched: '2026-08-05'
+  method: HTTP GET, anonymous, no credentials

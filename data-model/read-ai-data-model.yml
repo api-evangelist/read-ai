@@ -1,0 +1,134 @@
+generated: '2026-08-05'
+method: searched
+source: >-
+  https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference,
+  https://support.read.ai/hc/en-us/articles/16352415827219-Getting-Started-with-Webhooks
+description: >-
+  Entity graph for the Read AI meeting-intelligence domain, read from the published
+  REST response examples and the webhook payload schema. There is no OpenAPI to
+  derive $refs from, so every entity and field below is taken from a provider-published
+  example or property list. Field names differ between the REST surface (epoch
+  millisecond suffixes, speaker_blocks under transcript.turns) and the webhook surface
+  (ISO 8601 times, transcript.speaker_blocks) — the divergence is recorded, not smoothed.
+root_entity: Meeting
+entities:
+  - name: Meeting
+    alias_in_webhook: session
+    id_field: id
+    id_format: ULID
+    id_field_in_webhook: session_id
+    fields:
+      - {name: id, type: string, note: 'Meeting ULID; session_id in webhook payloads.'}
+      - {name: title, type: string}
+      - {name: start_time_ms, type: integer, surface: rest}
+      - {name: end_time_ms, type: integer, surface: rest, note: 'null or absent while the meeting is active.'}
+      - {name: scheduled_start_time_ms, type: integer, surface: rest}
+      - {name: scheduled_end_time_ms, type: integer, surface: rest}
+      - {name: start_time, type: string, surface: webhook, note: UTC / ISO 8601}
+      - {name: end_time, type: string, surface: webhook, note: UTC / ISO 8601}
+      - {name: report_url, type: string, note: 'https://app.read.ai/analytics/meetings/{id}'}
+      - {name: platform, type: string, note: 'e.g. zoom, meet, teams, or the Read AI desktop/mobile app.'}
+      - {name: platform_id, type: string, surface: rest, alias_in_webhook: platform_meeting_id}
+      - {name: folders, type: array, surface: rest}
+      - {name: live_enabled, type: boolean, surface: rest}
+    states:
+      - {name: active, condition: end_time_ms absent or null}
+      - {name: ended, condition: end_time_ms has a value}
+      - {name: live-enabled, condition: 'live_enabled: true'}
+  - name: Participant
+    fields:
+      - {name: name, type: string}
+      - {name: first_name, type: string, surface: webhook}
+      - {name: last_name, type: string, surface: webhook}
+      - {name: email, type: string, nullable: true}
+      - {name: invited, type: boolean, surface: rest}
+      - {name: attended, type: boolean, surface: rest}
+  - name: Transcript
+    expandable: true
+    fields:
+      - {name: speakers, type: array, of: Speaker}
+      - {name: turns, type: array, of: SpeakerTurn, surface: rest}
+      - {name: speaker_blocks, type: array, of: SpeakerTurn, surface: webhook}
+      - {name: text, type: string, surface: rest, note: 'Flattened "[Speaker]: words" rendering.'}
+  - name: Speaker
+    fields:
+      - {name: name, type: string}
+  - name: SpeakerTurn
+    fields:
+      - {name: speaker, type: object, of: Speaker}
+      - {name: text, type: string, surface: rest, alias_in_webhook: words}
+      - {name: start_time_ms, type: integer, note: Unix epoch milliseconds.}
+      - {name: end_time_ms, type: integer}
+  - name: ChapterSummary
+    expandable: true
+    fields:
+      - {name: title, type: string}
+      - {name: description, type: string}
+      - {name: topics, type: array, of: Topic}
+  - name: ActionItem
+    expandable: true
+    fields:
+      - {name: text, type: string}
+  - name: KeyQuestion
+    expandable: true
+    fields:
+      - {name: text, type: string}
+  - name: Topic
+    expandable: true
+    fields:
+      - {name: text, type: string}
+  - name: Metrics
+    expandable: true
+    fields:
+      - {name: read_score, type: number}
+      - {name: sentiment, type: number}
+      - {name: engagement, type: number}
+    note: >-
+      Also the source of speaker-time data used for talk-ratio analysis, per Read AI's
+      own sales-call-review skill.
+  - name: Summary
+    expandable: true
+    type: string
+  - name: RecordingDownload
+    expandable: true
+    note: URL to download the meeting recording as an MP4 file.
+  - name: ListEnvelope
+    fields:
+      - {name: object, type: string, note: 'Typically "list".'}
+      - {name: url, type: string}
+      - {name: has_more, type: boolean}
+      - {name: data, type: array, of: Meeting}
+relationships:
+  - {from: Meeting, to: Participant, kind: has_many, via: participants}
+  - {from: Meeting, to: Participant, kind: has_one, via: owner}
+  - {from: Meeting, to: Summary, kind: has_one, via: summary, expand: true}
+  - {from: Meeting, to: ChapterSummary, kind: has_many, via: chapter_summaries, expand: true}
+  - {from: Meeting, to: ActionItem, kind: has_many, via: action_items, expand: true}
+  - {from: Meeting, to: KeyQuestion, kind: has_many, via: key_questions, expand: true}
+  - {from: Meeting, to: Topic, kind: has_many, via: topics, expand: true}
+  - {from: Meeting, to: Transcript, kind: has_one, via: transcript, expand: true}
+  - {from: Meeting, to: Metrics, kind: has_one, via: metrics, expand: true}
+  - {from: Meeting, to: RecordingDownload, kind: has_one, via: recording_download, expand: true}
+  - {from: Transcript, to: Speaker, kind: has_many, via: speakers}
+  - {from: Transcript, to: SpeakerTurn, kind: has_many, via: 'turns / speaker_blocks'}
+  - {from: SpeakerTurn, to: Speaker, kind: belongs_to, via: speaker}
+  - {from: ChapterSummary, to: Topic, kind: has_many, via: topics}
+  - {from: ListEnvelope, to: Meeting, kind: has_many, via: data}
+audit_domain:
+  description: >-
+    Workspace audit logs are a separate, OCSF-1.7.0-shaped event domain, delivered to
+    an audit log sink rather than through the meetings API.
+  schema: Open Cybersecurity Schema Framework 1.7.0
+  classes:
+    - {class_uid: 3001, class_name: Account Change}
+    - {class_uid: 3002, class_name: Authentication}
+    - {class_uid: 3005, class_name: User Access Management}
+    - {class_uid: 3006, class_name: Group Management}
+    - {class_uid: 6001, class_name: Web Resources Activity}
+    - {class_uid: 6002, class_name: Application Lifecycle}
+  source: https://support.read.ai/hc/en-us/articles/50196944604563-Workspace-Audit-Logs-Event-Types-and-Schema
+x-evidence:
+  fetched: '2026-08-05'
+  note: >-
+    Derived only from response examples and property lists the provider publishes. No
+    field, type or relationship was inferred from an unpublished source.

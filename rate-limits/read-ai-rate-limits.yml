@@ -1,0 +1,43 @@
+generated: '2026-08-05'
+method: searched
+source: https://support.read.ai/hc/en-us/articles/49379985941523-Read-AI-API-and-MCP-Overview
+description: >-
+  Read AI publishes a single documented rate limit for the public REST API and MCP
+  server, stated in the API and MCP Overview article. No rate-limit response headers
+  are documented.
+rate_limits:
+  - name: Public API (all endpoints)
+    api: Read AI REST API
+    limit_count: 100
+    limit_period: minute
+    scope: per user
+    exceeded_status: 429
+    exceeded_behavior: >-
+      "Exceeding this limit will result in HTTP 429 errors." No Retry-After header or
+      quota headers are documented.
+    source: https://support.read.ai/hc/en-us/articles/49379985941523-Read-AI-API-and-MCP-Overview
+other_limits:
+  - name: Page size
+    limit_count: 10
+    unit: objects per page
+    scope: 'GET /v1/meetings and the list_meetings MCP tool'
+    note: The limit parameter defaults to 10 and is capped at 10.
+  - name: Webhooks per user
+    limit_count: 20
+    scope: per user
+    source: https://support.read.ai/hc/en-us/articles/16352415827219-Getting-Started-with-Webhooks
+  - name: Workspace webhooks
+    limit_count: 20
+    scope: per workspace (separate cap)
+    source: https://support.read.ai/hc/en-us/articles/16352415827219-Getting-Started-with-Webhooks
+  - name: Webhook delivery retries
+    limit_count: 6
+    unit: attempts per delivery
+    note: >-
+      Up to 5 retries after the first attempt, with exponential backoff on any status
+      above 299. After 25 consecutive failures the webhook is disabled ("Stopped").
+headers:
+  documented: false
+x-evidence:
+  fetched: '2026-08-05'
+  http_status: 200

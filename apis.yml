@@ -1,23 +1,193 @@
 aid: read-ai
 name: Read AI
-description: 'Read AI is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Read AI is an AI-powered meeting intelligence platform that joins Zoom, Microsoft
+  Teams and Google Meet calls as an authorized notetaker and turns them into
+  structured meeting reports — summaries, chapter summaries, action items, key
+  questions, topics, full speaker-attributed transcripts and engagement metrics —
+  plus enterprise search across email, messaging and calendar. Founded in 2021 in
+  Seattle by the team behind Placed and Foursquare, it reports more than five million
+  monthly active users. For developers, Read AI ships an open-beta public REST API at
+  api.read.ai (v1 meetings, live meetings, cursor pagination, expandable fields), a
+  remote Model Context Protocol server at api.read.ai/mcp listed in the Anthropic and
+  ChatGPT connector directories, HMAC-signed user and workspace webhooks, three
+  provider-authored downloadable Agent Skills, and an OAuth 2.1 authorization server
+  with dynamic client registration. It publishes no OpenAPI.
 url: https://raw.githubusercontent.com/api-evangelist/read-ai/refs/heads/main/apis.yml
+image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
 specificationVersion: '0.20'
 created: '2026-08-05'
 modified: '2026-08-05'
 tags:
 - Company
-apis: []
+- Meeting Intelligence
+- Artificial Intelligence
+- Transcription
+- Productivity
+- Collaboration
+- Model Context Protocol
+- Agents
+- Webhooks
+- SaaS
+apis:
+- name: Read AI REST API
+  description: >-
+    Open-beta public REST API for programmatic access to a user's Read AI meeting
+    data. Three documented meeting endpoints — list meetings with cursor pagination
+    and epoch-millisecond time filters, retrieve a meeting by ULID, and retrieve
+    live data for an in-progress meeting — plus an expand[] projection covering
+    summary, chapter_summaries, action_items, key_questions, topics, transcript,
+    metrics and recording_download. Read-only; every documented operation is a GET.
+    Bearer-token authenticated via OAuth 2.1 with dynamic client registration.
+  humanURL: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+  baseURL: https://api.read.ai/
+  image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  tags:
+  - Meetings
+  - Transcription
+  - Meeting Intelligence
+  - REST
+  properties:
+  - type: Documentation
+    url: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+  - type: APIReference
+    url: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+  - type: GettingStarted
+    url: https://support.read.ai/hc/en-us/articles/49379985941523-Read-AI-API-and-MCP-Overview
+  - type: Authentication
+    url: authentication/read-ai-authentication.yml
+  - type: OAuthScopes
+    url: scopes/read-ai-scopes.yml
+  - type: ErrorCatalog
+    url: errors/read-ai-problem-types.yml
+  - type: RateLimits
+    url: rate-limits/read-ai-rate-limits.yml
+  - type: Conventions
+    url: conventions/read-ai-conventions.yml
+  - type: DataModel
+    url: data-model/read-ai-data-model.yml
+  x-evidence:
+    verified: '2026-08-05'
+    docs_describe: >-
+      Method + path, query parameters, request examples, response examples,
+      pagination contract and an error-code table for GET /v1/meetings,
+      GET /v1/meetings/{id} and GET /v1/meetings/{id}/live.
+    endpoint_check: 'GET https://api.read.ai/v1/meetings -> 401 {"detail":"Not authenticated"}'
+    openapi: >-
+      None published. /openapi.json, /docs and /redoc are 301-redirected by the ALB to
+      https://www.read.ai/; /openapi.yaml, /swagger.json, /v1/openapi.json, /api-docs
+      return {"detail":"Not Found"}.
+- name: Read AI MCP Server
+  description: >-
+    First-party remote Model Context Protocol server exposing a user's Read AI
+    meeting reports to any MCP client over Streamable HTTP. Two published tools —
+    list_meetings and get_meeting_by_id — return meeting metadata, participants,
+    summaries, chapter summaries, action items, key questions, topics, full
+    transcripts, metrics and a recording download URL. Listed in the Anthropic
+    connector directory and the ChatGPT app directory; protected by OAuth 2.1 with
+    RFC 9728 protected-resource metadata and the mcp:execute and meeting:read scopes.
+  humanURL: https://support.read.ai/hc/en-us/articles/49381158409491-MCP-Server
+  baseURL: https://api.read.ai/mcp
+  image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
+  tags:
+  - Model Context Protocol
+  - Agents
+  - Meetings
+  properties:
+  - type: MCPServer
+    url: mcp/read-ai-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/read-ai-tool-crosswalk.yml
+  - type: Documentation
+    url: https://support.read.ai/hc/en-us/articles/49381158409491-MCP-Server
+  - type: Authentication
+    url: authentication/read-ai-authentication.yml
+  x-evidence:
+    verified: '2026-08-05'
+    docs_describe: >-
+      Server URI, transport, OAuth 2.1 authentication, compatible clients, and the
+      two available tools with the data each returns.
+    endpoint_check: >-
+      POST https://api.read.ai/mcp (initialize) -> 401 invalid_token with
+      WWW-Authenticate resource_metadata=
+      https://api.read.ai/.well-known/oauth-protected-resource/mcp (server: uvicorn)
+    tools_list: OAuth-gated; tool names taken from Read AI's own published skill bundles.
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/read-ai-domain-security.yml
 - type: Website
-  url: https://forgeglobal.com/read-ai_stock/
+  url: https://www.read.ai/
+- type: DeveloperPortal
+  url: https://support.read.ai/hc/en-us/sections/49378920415891-API-and-MCP
+- type: Documentation
+  url: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+- type: APIReference
+  url: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+- type: GettingStarted
+  url: https://support.read.ai/hc/en-us/articles/49379985941523-Read-AI-API-and-MCP-Overview
+- type: Support
+  url: https://support.read.ai/hc/en-us
+- type: Blog
+  url: https://www.read.ai/blog
+- type: GitHubOrganization
+  url: https://github.com/Read-AI-Inc
+- type: Pricing
+  url: https://www.read.ai/plans-pricing
+- type: SignUp
+  url: https://app.read.ai/
+- type: TermsOfService
+  url: https://www.read.ai/tos
+- type: PrivacyPolicy
+  url: https://www.read.ai/privacy-policy
+- type: TrustCenter
+  url: security/read-ai-trust-center.yml
+- type: Compliance
+  url: https://support.read.ai/hc/en-us/articles/25702259763091-Security-Privacy-Overview
+- type: StatusPage
+  url: https://status.read.ai/
+- type: Integrations
+  url: https://www.read.ai/integrations
+- type: LLMsTxt
+  url: llms/read-ai-llms.txt
+- type: WellKnown
+  url: well-known/read-ai-well-known.yml
+- type: MCPServer
+  url: mcp/read-ai-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/read-ai-tool-crosswalk.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Authentication
+  url: authentication/read-ai-authentication.yml
+- type: OAuthScopes
+  url: scopes/read-ai-scopes.yml
+- type: Conventions
+  url: conventions/read-ai-conventions.yml
+- type: ErrorCatalog
+  url: errors/read-ai-problem-types.yml
+- type: RateLimits
+  url: rate-limits/read-ai-rate-limits.yml
+- type: Lifecycle
+  url: lifecycle/read-ai-lifecycle.yml
+- type: Conformance
+  url: conformance/read-ai-conformance.yml
+- type: DataModel
+  url: data-model/read-ai-data-model.yml
+- type: Packages
+  url: packages/read-ai-packages.yml
+- type: Webhooks
+  url: asyncapi/read-ai-webhooks.yml
+- type: Plans
+  url: plans/read-ai-plans.yml
+x-enrichment:
+  date: '2026-08-05'
+  status: enriched
+  artifacts_added: 25
+  pass: local-v1

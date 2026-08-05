@@ -1,0 +1,85 @@
+generated: '2026-08-05'
+method: searched
+source: https://www.read.ai/plans-pricing
+description: >-
+  Read AI's published, self-serve pricing. Prices are per user per month, listed both
+  annually-billed and monthly-billed. API and MCP access is NOT a paid add-on — the
+  provider states it is "available to all users regardless of plan or workspace",
+  gated only on the workspace having Downloads enabled. Webhooks, by contrast, are
+  paid-plan only.
+pricing: freemium
+plans:
+  - name: Free
+    price: 0
+    currency: USD
+    period: month
+    limits:
+      - 5 meeting transcripts per month
+      - 1 hour maximum meeting length
+    features:
+      - Unlimited enterprise search
+      - Summaries and transcription
+      - Personalized meeting coach
+      - Basic integrations
+      - 20+ languages
+  - name: Pro
+    price_annual_per_month: 15
+    price_monthly: 19.75
+    currency: USD
+    period: month
+    limits:
+      - Unlimited meeting transcripts
+      - 4 hour maximum meeting length
+      - 100 file upload credits per month
+    features:
+      - Everything in Free
+      - Priority report processing
+      - Premium integrations (Notion, Salesforce, HubSpot, Jira, Confluence, Zapier)
+      - Webhooks
+  - name: Enterprise
+    price_annual_per_month: 22.50
+    price_monthly: 29.75
+    currency: USD
+    period: month
+    limits:
+      - Unlimited meeting transcripts
+      - 4 hour maximum meeting length
+      - 200 file upload credits per month
+    features:
+      - Everything in Pro
+      - Audio and video playback
+      - Video highlights
+      - Premium support
+      - Webhooks
+  - name: Enterprise+
+    price_annual_per_month: 29.75
+    price_monthly: 39.75
+    currency: USD
+    period: month
+    minimum_licenses: 5
+    limits:
+      - Unlimited meeting transcripts
+      - 8 hour maximum meeting length
+      - 300 file upload credits per month
+    features:
+      - Everything in Enterprise
+      - HIPAA compliance
+      - SAML and SCIM
+      - Domain capture
+      - Custom data retention
+      - Workspace onboarding
+      - Webhooks
+api_access:
+  paid_gate: false
+  note: >-
+    "It is otherwise available to all users regardless of plan or workspace." — Read
+    AI API and MCP Overview. The only prerequisite is that a workspace member's
+    workspace has Downloads enabled under Workspace Settings > Reports & Sharing.
+  source: https://support.read.ai/hc/en-us/articles/49379985941523-Read-AI-API-and-MCP-Overview
+webhook_gate:
+  paid_gate: true
+  plans: [Pro, Enterprise, 'Enterprise+']
+x-evidence:
+  fetched: '2026-08-05'
+  url: https://www.read.ai/plans-pricing
+  http_status: 200

@@ -1,0 +1,111 @@
+generated: '2026-08-05'
+method: searched
+source: https://support.read.ai/hc/en-us/articles/16352415827219-Getting-Started-with-Webhooks
+spec_type: null
+spec_note: >-
+  Read AI publishes no AsyncAPI document. This is the webhook catalog captured
+  verbatim from the provider's own webhook guide — the event surface exists and is
+  fully documented in prose, but there is no machine-readable event contract.
+description: >-
+  Read AI pushes meeting reports to a customer HTTPS endpoint when a report is
+  generated (and, for workspace webhooks, when a meeting starts). Webhooks are
+  configured in the app at https://app.read.ai/analytics/integrations/webhooks and
+  are a paid-plan feature.
+transport: HTTPS POST with a raw JSON body
+availability:
+  plans: [Pro, Enterprise, 'Enterprise+']
+  prerequisites:
+    - User must have a verified email address.
+    - Only workspace admins and owners can create or edit workspace webhooks.
+  configuration_url: https://app.read.ai/analytics/integrations/webhooks
+webhook_types:
+  - type: user
+    who_can_create: any user
+    reports_pushed: only the creating user's reports
+    triggers: [meeting_end]
+    limit: 20 per user
+  - type: workspace
+    who_can_create: workspace admins and owners
+    reports_pushed: reports for every member of the workspace
+    triggers: [meeting_start, meeting_end]
+    limit: 20 per workspace (separate cap)
+events:
+  - name: meeting_end
+    trigger_field: trigger
+    description: >-
+      Fired when the meeting report is successfully generated after a meeting ends.
+      Also the trigger value used when a user manually pushes a report from the
+      report page. Carries the full standard payload.
+    payload: standard
+  - name: meeting_start
+    trigger_field: trigger
+    description: >-
+      Workspace webhooks only. Fired at the start of a meeting, before any report
+      exists, so it carries a reduced subset of the standard payload.
+    payload: subset
+    fields:
+      [session_id, trigger, title, start_time, owner, platform, platform_meeting_id, request_id]
+payload:
+  content_type: application/json
+  properties:
+    - {name: session_id, description: A unique identifier for the meeting session.}
+    - {name: trigger, description: 'meeting_end or meeting_start.'}
+    - {name: title, description: The title of the meeting.}
+    - {name: start_time, description: Start time of the meeting in UTC format.}
+    - {name: end_time, description: End time of the meeting in UTC format.}
+    - {name: participants, description: An array of participants in the meeting.}
+    - {name: owner, description: The meeting owner.}
+    - {name: summary, description: The high-level meeting summary.}
+    - {name: action_items, description: Array of action items discussed during the meeting.}
+    - {name: key_questions, description: Array of key questions raised during the meeting.}
+    - {name: topics, description: Array of topics covered in the meeting.}
+    - {name: report_url, description: URL to the meeting report in Read's web UI.}
+    - {name: chapter_summaries, description: Sequential chapter summaries with their associated topics.}
+    - {name: transcript, description: 'Full transcript with speaker_blocks and speakers; timestamps in Unix milliseconds.'}
+    - {name: platform_meeting_id, description: The meeting ID from Teams, Zoom or Meet.}
+    - {name: platform, description: The platform the meeting was recorded from.}
+    - {name: request_id, description: Unique ID per delivery, used to discard duplicate payloads and prevent replay.}
+security:
+  signature:
+    header: X-Read-Signature
+    algorithm: HMAC-SHA256
+    computed_over: the raw request body, unmodified and unparsed
+    key_encoding: >-
+      The signing key is base64; decode it to bytes before computing the HMAC. The
+      header value is a lowercase hex digest.
+    per_endpoint_key: true
+    available_since: '2026-03-17'
+    legacy_note: >-
+      Webhooks created before March 2026 carry no signature and must be deleted and
+      re-created to gain one.
+    sample_code_languages: [python, javascript]
+  replay_protection:
+    field: request_id
+    method: reject a payload whose request_id has already been processed
+  transport: HTTPS endpoint required
+delivery:
+  expected_response: any 2xx status
+  retry: exponential backoff on any status above 299
+  retries_per_delivery: up to 5 retries (6 attempts total)
+  disable_after: 25 consecutive failures, after which the webhook is marked "Stopped"
+  test_mechanism: >-
+    "Send test request" in the webhook configuration UI delivers a dummy payload
+    matching the standard schema; an existing report can also be pushed manually.
+limitations:
+  - >-
+    Webhooks fire only for reports a member had DIRECT access to at report-creation
+    time — not for reports reached through Team Report Access or Global Report Access.
+  - Reports generated from file uploads do not trigger webhooks.
+  - >-
+    Signature verification is unavailable on webhooks created before March 2026.
+alternatives:
+  no_code: https://support.read.ai/hc/en-us/articles/18847506033171-Getting-Started-with-Zapier
+  pull: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+x-evidence:
+  fetched: '2026-08-05'
+  url: https://support.read.ai/hc/en-us/articles/16352415827219-Getting-Started-with-Webhooks
+  http_status: 200
+  retrieved_via: >-
+    support.read.ai/api/v2/help_center/en-us/articles/16352415827219.json — the
+    Zendesk Help Center API that Read AI's own llms.txt names as the canonical
+    machine-readable source. The human HTML URL is Cloudflare bot-challenged (403).

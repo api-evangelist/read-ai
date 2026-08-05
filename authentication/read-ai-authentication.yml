@@ -1,0 +1,95 @@
+generated: '2026-08-05'
+method: searched
+source: https://support.read.ai/hc/en-us/articles/49380809380371-API-Keys-Authentication
+docs: https://support.read.ai/hc/en-us/articles/49380809380371-API-Keys-Authentication
+description: >-
+  Read AI's REST API and MCP server share one OAuth 2.1 authorization server
+  (authn.read.ai) and one bearer-token contract. There are no static API keys: the
+  provider explicitly documents this as a known limitation of the open beta, with
+  personal access tokens planned for GA. Client credentials are obtained by RFC 7591
+  dynamic client registration; the user then completes a browser authorization-code
+  flow with PKCE. Access tokens live 10 minutes and refresh tokens rotate on every
+  use.
+summary:
+  types: [oauth2, openIdConnect]
+  api_key_in: []
+  oauth2_flows: [authorizationCode, refreshToken, clientCredentials, deviceCode, implicit]
+  static_api_keys: false
+  dynamic_client_registration: true
+schemes:
+  - name: OAuth2
+    type: oauth2
+    spec: OAuth 2.1
+    issuer: https://authn.read.ai/
+    flows:
+      - flow: authorizationCode
+        authorizationUrl: https://authn.read.ai/oauth2/auth
+        tokenUrl: https://authn.read.ai/oauth2/token
+        refreshUrl: https://authn.read.ai/oauth2/token
+        pkce: true
+        code_challenge_methods: [S256, plain]
+      - flow: deviceCode
+        deviceAuthorizationUrl: https://authn.read.ai/oauth2/device/auth
+      - flow: clientCredentials
+        tokenUrl: https://authn.read.ai/oauth2/token
+        note: >-
+          Advertised in authorization-server metadata as a supported grant type; the
+          provider's own docs say machine-to-machine use is not yet supported in the
+          open beta.
+    registration_endpoint: https://api.read.ai/oauth/register
+    revocation_endpoint: https://authn.read.ai/oauth2/revoke
+    userinfo_endpoint: https://authn.read.ai/userinfo
+    jwks_uri: https://authn.read.ai/.well-known/jwks.json
+    token_endpoint_auth_methods:
+      [client_secret_post, client_secret_basic, private_key_jwt, none]
+    id_token_signing_alg: [RS256]
+    audience:
+      - https://api.read.ai/v1/meetings
+      - https://api.read.ai/mcp
+    sources:
+      - well-known/read-ai-openid-configuration.json
+      - well-known/read-ai-oauth-authorization-server.json
+      - well-known/read-ai-oauth-protected-resource-mcp.json
+  - name: BearerToken
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+    in: header
+    parameter: Authorization
+    description: >-
+      Every REST endpoint requires "Authorization: Bearer <access_token>". Tokens are
+      Ory-issued (ory_at_... prefix) JWTs from the authorization-code exchange.
+    sources:
+      - https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+token_lifetimes:
+  access_token_seconds: 600
+  refresh_token_rotation: true
+  refresh_token_single_use: true
+  refresh_grace_period: >-
+    Short, undocumented grace window to tolerate concurrency; the previous refresh
+    token must be discarded after each exchange.
+end_user_authentication:
+  sso: [Microsoft, Google, SAML]
+  saml_providers_documented: [Okta, Microsoft Entra, Duo]
+  scim: true
+  scim_note: SAML & SCIM are Enterprise+ plan features.
+  mfa: true
+prerequisites:
+  - >-
+    If the caller belongs to a workspace, that workspace must have the Downloads
+    option enabled under Workspace Settings > Reports & Sharing.
+  - >-
+    A caller can only retrieve reports they can already see in the web app; admins
+    must enable Global Report Access to reach every report in a workspace.
+known_limitations:
+  - No static API keys or personal access tokens (planned for GA).
+  - Browser-based login required; not yet suited to unattended machine-to-machine use.
+  - >-
+    Some MCP clients (VS Code, Notion have been reported) do not complete the
+    provider's auth flow.
+x-evidence:
+  fetched: '2026-08-05'
+  probes:
+    - {url: 'https://api.read.ai/v1/meetings', http_status: 401}
+    - {url: 'https://authn.read.ai/.well-known/openid-configuration', http_status: 200}
+    - {url: 'https://api.read.ai/.well-known/oauth-protected-resource/mcp', http_status: 200}

@@ -1,0 +1,28 @@
+generated: '2026-08-05'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: www.read.ai
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct 14 20:50:41 2026 GMT
+  hsts: true
+  hsts_max_age: 31536000
+- host: support.read.ai
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Sep  5 23:44:55 2026 GMT
+  hsts: true
+  hsts_max_age: 259200
+- host: api.read.ai
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct 24 23:59:59 2026 GMT
+  hsts: null
+domains:
+- domain: read.ai
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: quarantine

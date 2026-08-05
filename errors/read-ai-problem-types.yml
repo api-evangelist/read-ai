@@ -1,0 +1,79 @@
+generated: '2026-08-05'
+method: searched
+source: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+format: http-status
+description: >-
+  Read AI publishes an error-code table on its API Reference rather than RFC 9457
+  problem+json. Responses are plain HTTP status codes with a FastAPI-style
+  {"detail": "..."} JSON body. The titles and meanings below are the provider's own
+  wording; the observed bodies were captured by anonymous probe on 2026-08-05.
+problem_json: false
+envelope:
+  content_type: application/json
+  shape: '{"detail": "<message>"}'
+problems:
+  - status: 400
+    title: Bad Request
+    description: Your request parameters were malformed or invalid.
+    remediation: >-
+      Check query-parameter names and types — especially the dotted time filters
+      (start_time_ms.gte etc., epoch milliseconds) and the repeated expand[] form.
+  - status: 401
+    title: Unauthorized
+    description: Authentication failed or missing token.
+    observed_body: '{"detail":"Not authenticated"}'
+    observed_at: 'GET https://api.read.ai/v1/meetings (anonymous, 2026-08-05)'
+    remediation: >-
+      Access tokens expire after 10 minutes. Exchange the rotating refresh token at
+      https://authn.read.ai/oauth2/token and retry.
+  - status: 403
+    title: Forbidden
+    description: You do not have permission to access this resource.
+    remediation: >-
+      A caller only sees reports they can already access in the web app. Workspace
+      admins must enable Global Report Access for workspace-wide reads, and the
+      workspace must have Downloads enabled.
+  - status: 404
+    title: Not Found
+    description: The requested resource does not exist.
+    observed_body: '{"detail":"Not Found"}'
+    observed_at: 'GET https://api.read.ai/v1/openapi.json (anonymous, 2026-08-05)'
+  - status: 405
+    title: Method Not Allowed
+    description: >-
+      Not listed in the provider's table; observed on GET
+      https://api.read.ai/oauth/register, which accepts POST only.
+    observed_body: '{"detail":"Method Not Allowed"}'
+    source: probe
+  - status: 422
+    title: Unprocessable Entity
+    description: One or more parameters failed validation.
+  - status: 429
+    title: Too Many Requests
+    description: Rate limit exceeded; retry later.
+    remediation: >-
+      The documented ceiling is 100 requests per minute per user. Back off and retry;
+      no Retry-After header is documented.
+  - status: 500
+    title: Server Error
+    description: Error occurred on the server.
+oauth_errors:
+  description: >-
+    The OAuth surface uses OAuth 2.0 error codes rather than the {"detail"} envelope.
+  observed:
+    - code: invalid_client_metadata
+      status: 400
+      where: 'POST https://api.read.ai/oauth/register'
+      observed_body_shape: '{"error": "...", "error_description": "..."}'
+    - code: invalid_token
+      status: 401
+      where: 'POST https://api.read.ai/mcp'
+      note: >-
+        Returned with a WWW-Authenticate Bearer challenge pointing at
+        https://api.read.ai/.well-known/oauth-protected-resource/mcp.
+x-evidence:
+  fetched: '2026-08-05'
+  docs_url: https://support.read.ai/hc/en-us/articles/49381161088659-API-Reference
+  probes:
+    - {url: 'https://api.read.ai/v1/meetings', http_status: 401}
+    - {url: 'https://api.read.ai/oauth/register', http_status: 405, method: GET}
