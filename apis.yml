@@ -27,6 +27,17 @@ tags:
 - Transcription
 - Productivity
 - Collaboration
+- MCP
+- Agents
+- Webhook
+- Software-as-a-Service
+tags_raw:
+- Company
+- Meeting Intelligence
+- Artificial Intelligence
+- Transcription
+- Productivity
+- Collaboration
 - Model Context Protocol
 - Agents
 - Webhooks
@@ -92,6 +103,10 @@ apis:
   baseURL: https://api.read.ai/mcp
   image: https://kinlane-productions2.s3.amazonaws.com/apis-json/apis-json-logo.jpg
   tags:
+  - MCP
+  - Agents
+  - Meetings
+  tags_raw:
   - Model Context Protocol
   - Agents
   - Meetings
