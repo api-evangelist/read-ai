@@ -82,3 +82,25 @@ deployment:
   probe: gated
   checked: '2026-08-12'
   source: catalog MCP census
+rfc9728:
+  endpoint: https://api.read.ai/mcp
+  metadata_url: https://api.read.ai/.well-known/oauth-protected-resource/mcp
+  discovered_via: WWW-Authenticate resource_metadata on an anonymous POST initialize
+  fetched: '2026-09-25'
+  http_status: 200
+  content_type: application/json
+  document:
+    resource: https://api.read.ai/mcp
+    authorization_servers:
+    - https://authn.read.ai/
+    scopes_supported:
+    - openid
+    - profile
+    - email
+    - offline_access
+    - offline
+    - mcp:execute
+    - meeting:read
+    bearer_methods_supported:
+    - header
+    resource_name: Read AI MCP Server
